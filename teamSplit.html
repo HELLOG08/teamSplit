@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>2:2:2 랜덤 팀 나누기</title>
+<style>
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #f0f8ff;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  .team {
+    background: #e3f2fd;
+    padding: 12px;
+    margin-top: 20px;
+    border-radius: 6px;
+  }
+  .team h2 {
+    margin-top: 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>2:2:2 랜덤 팀 나누기</h1>
+
+<button id="makeTeam">팀 나누기</button>
+
+<div id="result"></div>
+
+<script>
+  const members = ["여자1호", "여자2호", "여자3호", "남자1호", "남자2호", "남자3호"];
+
+  function shuffle(array) {
+    for(let i = array.length -1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i +1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  function isValidTeam(team) {
+    const oneToThree = team.filter((_, i) => i < 3).filter(x => ['여자1호', '여자2호', '여자3호'].includes(x));
+    const fourToSix = team.filter((_, i) => i < 3).filter(x => ['남자1호', '남자2호', '남자3호'].includes(x));
+    return !(oneToThree.length > 1 || fourToSix.length > 1);
+  }
+
+  document.getElementById('makeTeam').addEventListener('click', () => {
+    let teams = null;
+    for(let attempt=0; attempt<1000; attempt++) {
+      shuffle(members);
+      const t1 = [members[0], members[1]];
+      const t2 = [members[2], members[3]];
+      const t3 = [members[4], members[5]];
+
+      // 1~3, 4~6 그룹 나눔 조건
+      function checkTeam(team) {
+        const group1 = ["여자1호", "여자2호", "여자3호"];
+        const group2 = ["남자1호", "남자2호", "남자3호"];
+        const c1 = team.filter(m => group1.includes(m));
+        const c2 = team.filter(m => group2.includes(m));
+        return !(c1.length > 1 || c2.length > 1);
+      }
+
+      if(checkTeam(t1) && checkTeam(t2) && checkTeam(t3)) {
+        teams = [t1, t2, t3];
+        break;
+      }
+    }
+
+    if(!teams) {
+      document.getElementById('result').innerHTML = '<p>팀 구성이 불가능합니다. 다시 시도해주세요.</p>';
+      return;
+    }
+
+    let html = '';
+    teams.forEach((team, i) => {
+      html += `<div class="team"><h2>팀 ${i+1}</h2><p>${team.join(', ')}</p></div>`;
+    });
+    document.getElementById('result').innerHTML = html;
+  });
+</script>
+
+</body>
+</html>
